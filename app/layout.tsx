@@ -16,11 +16,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Interim Govt. Protest Watch",
-    template: "%s — Interim Govt. Protest Watch",
+    default: "Interim Protest Calendar",
+    template: "%s - Interim Protest Calendar",
+  },
+  icons: {
+    icon: "/icon.svg",
   },
   description:
-    "A chronological archive of protests in Dhaka since the interim government took office in August 2024.",
+    "A chronological archive of protests since the interim government took office in August 2024.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
