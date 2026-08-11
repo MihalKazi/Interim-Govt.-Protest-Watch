@@ -2,10 +2,14 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import type { Protest } from "@/lib/data";
 import { colorFor, shortLabel } from "@/lib/categories";
+import { DATE_CARD_PHOTOS } from "@/lib/protestPhotos";
 import RecordDetail from "./RecordDetail";
 import TornEdge from "./TornEdge";
+
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function DayPanel({
   month,
@@ -75,6 +79,31 @@ export default function DayPanel({
   }, []);
 
   const hasUndated = records.some((r) => !/^\d{1,2} /.test(r.date));
+  const photo =
+    day === null ? null : DATE_CARD_PHOTOS[`${day} ${month}`] ?? null;
+  const weekday =
+    day === null
+      ? null
+      : WEEKDAYS[
+          new Date(
+            Number(month.split(" ")[1]),
+            [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ].indexOf(month.split(" ")[0]),
+            day,
+          ).getDay()
+        ];
   const tearStart =
     tearOrigin && panelRect
       ? {
@@ -90,7 +119,7 @@ export default function DayPanel({
         day === null ? "hidden sm:block" : "block"
       } w-full sm:w-88 shrink-0 h-[42vh] sm:h-full overflow-y-auto overflow-x-hidden shadow-[0_-14px_28px_rgba(28,26,22,0.05)] sm:shadow-[-14px_0_28px_rgba(28,26,22,0.04)] transition-colors duration-200 ${
         day === null || isRevealed
-          ? "border-t sm:border-t-0 sm:border-l border-rule bg-paper"
+          ? "border-t sm:border-t-0 sm:border-l border-rule bg-[color-mix(in_srgb,var(--paper)_88%,white)]"
           : "border-t sm:border-t-0 sm:border-l border-transparent bg-transparent"
       }`}
     >
@@ -144,9 +173,9 @@ export default function DayPanel({
               exit={{ opacity: 0, x: -16 }}
               transition={{ duration: 0.18 }}
             >
-              <div className="sticky top-0 bg-paper/95 backdrop-blur-md border-b border-rule px-5 py-4 z-10 shadow-[0_8px_18px_rgba(28,26,22,0.04)]">
+              <div className="sticky top-0 bg-[color-mix(in_srgb,var(--paper)_90%,white)] backdrop-blur-md border-b border-rule px-5 py-4 z-10 shadow-[0_8px_18px_rgba(28,26,22,0.05)]">
                 <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
-                  Day dossier
+                  Day dossier {weekday ? ` / ${weekday}` : ""}
                 </p>
                 <h3 className="font-serif text-2xl leading-tight">
                   {month.split(" ")[0]} {day}, {month.split(" ")[1]}
@@ -158,6 +187,25 @@ export default function DayPanel({
                     : ""}
                 </p>
               </div>
+
+              {photo && (
+                <figure className="mx-3 mt-3 overflow-hidden rounded-md border border-rule bg-[color-mix(in_srgb,var(--paper)_82%,white)] shadow-[0_10px_22px_rgba(28,26,22,0.09)]">
+                  <div className="relative aspect-[16/9]">
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 352px"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(23,21,17,0.78))] px-3 pb-2 pt-10">
+                      <figcaption className="font-sans text-[10px] uppercase tracking-[0.12em] text-paper/88">
+                        Photo: {photo.credit}
+                      </figcaption>
+                    </div>
+                  </div>
+                </figure>
+              )}
 
               <ul className="px-3 py-3">
                 {records.map((r) => {
@@ -180,7 +228,7 @@ export default function DayPanel({
                           });
                           setOpenRecord(r);
                         }}
-                        className="group relative flex flex-col w-full text-left rounded-md border border-rule bg-[color-mix(in_srgb,var(--paper)_78%,white)] pl-4 pr-3 py-3 overflow-hidden shadow-[0_1px_0_rgba(255,255,255,0.65)_inset,0_4px_14px_rgba(28,26,22,0.05)] transition-all duration-150 hover:border-ink/25 hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(28,26,22,0.09)]"
+                        className="group relative flex flex-col w-full text-left rounded-md border border-rule bg-[color-mix(in_srgb,var(--paper)_84%,white)] pl-4 pr-3 py-3 overflow-hidden shadow-[0_1px_0_rgba(255,255,255,0.65)_inset,0_4px_14px_rgba(28,26,22,0.055)] transition-all duration-150 hover:border-ink/25 hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(28,26,22,0.09)]"
                       >
                         <span
                           className="absolute left-0 top-0 bottom-0 w-1"

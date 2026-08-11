@@ -1,4 +1,5 @@
 import raw from "@/protests.json";
+import researchedAdditions from "@/protests-additions.json";
 
 export interface Protest {
   n: number;
@@ -33,14 +34,26 @@ interface RawData {
 }
 
 const data = raw as unknown as RawData;
+const additions = researchedAdditions as unknown as Protest[];
+const allRecords = [...data.records, ...additions];
 
-export const meta: Meta = data.meta;
+export const meta: Meta = {
+  ...data.meta,
+  title: `${allRecords.length} Greater Dhaka protest records`,
+  scope: "Greater Dhaka",
+  period: "8 Aug 2024 - 17 Feb 2026",
+  total: allRecords.length,
+  linked: allRecords.filter((record) => Boolean(record.url)).length,
+  unverified: allRecords.filter((record) => !record.verified).length,
+  note:
+    "Publicly reported records only. Dates and locations are source-verified; coordinates are approximate landmarks.",
+};
 
 const DAY_PRECISE_RE = /^\d{1,2} [A-Za-z]{3} \d{4}$/;
 
 // pilot: verified records with an exact day only — drops unverified and
 // month-only-dated records from the whole site, not just the calendar.
-export const records: Protest[] = data.records.filter(
+export const records: Protest[] = allRecords.filter(
   (r) => r.verified && DAY_PRECISE_RE.test(r.date),
 );
 

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
   },
   description:
-    "A chronological archive of protests since the interim government took office in August 2024.",
+    "A calendar archive of reported protests across Greater Dhaka during Bangladesh's interim government.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

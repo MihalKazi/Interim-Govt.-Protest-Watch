@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function SiteHeader() {
   return (
-    <div className="border-b border-rule bg-[color-mix(in_srgb,var(--paper)_82%,white)]">
+    <div className="border-b border-rule bg-[color-mix(in_srgb,var(--paper)_88%,white)] shadow-[0_1px_0_rgba(255,255,255,0.5)_inset]">
       <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/" className="group flex items-center gap-3">
           <span className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-sm border border-accent/50 bg-paper shadow-[3px_3px_0_rgba(37,75,61,0.14)] transition-transform group-hover:-rotate-3">
@@ -30,6 +30,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
+        <div className="flex items-center gap-2">
         <nav className="flex items-center gap-2 text-xs font-sans text-ink-muted">
           <a
             href="https://bangladesh-protest-monitor.vercel.app/"
@@ -46,6 +47,7 @@ export default function SiteHeader() {
             About
           </Link>
         </nav>
+        </div>
       </div>
     </div>
   );

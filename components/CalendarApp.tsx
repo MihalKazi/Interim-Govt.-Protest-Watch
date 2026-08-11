@@ -94,10 +94,10 @@ export default function CalendarApp({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row flex-1 min-h-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--paper)_72%,white),var(--paper))]">
+    <div className="flex flex-col sm:flex-row flex-1 min-h-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--paper)_82%,white),color-mix(in_srgb,var(--paper)_88%,#e5d6c2))]">
     <div className="flex-1 min-h-0 flex flex-col px-4 sm:px-6 pb-4">
       <div className="flex items-center gap-2 mb-2 pt-3 shrink-0">
-        <div className="flex flex-1 items-center gap-2 rounded-full border border-rule/80 bg-paper/60 px-3 py-2">
+        <div className="flex flex-1 items-center gap-2 rounded-full border border-rule bg-[color-mix(in_srgb,var(--paper)_78%,white)] px-3 py-2 shadow-[0_1px_0_rgba(255,255,255,0.55)_inset]">
           <svg
             width="14"
             height="14"
@@ -132,7 +132,7 @@ export default function CalendarApp({
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-sans font-medium transition-colors ${
             showFilters || selectedCats.size
               ? "border-accent bg-accent text-paper"
-              : "border-rule bg-paper/70 text-ink-muted hover:border-accent hover:text-accent"
+              : "border-rule bg-[color-mix(in_srgb,var(--paper)_76%,white)] text-ink-muted hover:border-accent hover:text-accent"
           }`}
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -224,12 +224,12 @@ export default function CalendarApp({
         )}
       </AnimatePresence>
 
-      <div className="relative flex items-center justify-between mb-1 shrink-0 border-b border-rule px-1 py-1.5">
+      <div className="relative flex items-center justify-center gap-3 sm:gap-5 mb-1 shrink-0 border-b border-rule px-1 py-1.5">
         <button
           onClick={() => goto(-1)}
           disabled={monthIndex === 0}
           aria-label="Previous month"
-          className="relative z-10 p-2 rounded-full border border-rule bg-paper/70 hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-colors"
+          className="relative z-10 p-2 rounded-full border border-rule bg-[color-mix(in_srgb,var(--paper)_78%,white)] hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -243,14 +243,49 @@ export default function CalendarApp({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.18 }}
-            className="relative z-10 text-center px-6"
+            className="relative z-10 min-w-[14rem] text-center px-2 sm:min-w-[20rem]"
           >
             <h2 className="font-serif text-3xl sm:text-4xl font-medium leading-none">{month}</h2>
-            <p className="font-sans text-xs text-ink-muted mt-0.5">
-              {hasFilters
-                ? `${monthTotal} of ${rawMonthCount} record${rawMonthCount === 1 ? "" : "s"} shown`
-                : `${rawMonthCount} record${rawMonthCount === 1 ? "" : "s"}`}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5 font-sans text-xs text-ink-muted">
+              <span>
+                {hasFilters
+                  ? `${monthTotal} of ${rawMonthCount} record${rawMonthCount === 1 ? "" : "s"} shown`
+                  : `${rawMonthCount} record${rawMonthCount === 1 ? "" : "s"}`}
+              </span>
+              <span className="text-rule">/</span>
+              <span
+                className="inline-flex items-baseline gap-1 rounded-sm border border-accent/40 bg-[color-mix(in_srgb,var(--paper)_78%,white)] px-1.5 py-0.5 shadow-[1px_1px_0_rgba(37,75,61,0.1)]"
+                aria-label={`${records.length} total protest records`}
+                title={`${records.length} total protest records`}
+              >
+                <span className="font-serif text-base leading-none tabular-nums text-accent">
+                  {records.length}
+                </span>
+                <span className="font-sans text-[8px] font-bold uppercase tracking-[0.12em] text-ink-muted">
+                  total
+                </span>
+              </span>
+              <span className="text-rule">/</span>
+            <label className="inline-flex items-center gap-1 rounded-sm border border-rule bg-[color-mix(in_srgb,var(--paper)_76%,white)] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.1em] text-ink-muted shadow-[1px_1px_0_rgba(28,26,22,0.05)]">
+              <span>Jump</span>
+              <select
+                value={monthIndex}
+                onChange={(event) => {
+                  setMonthIndex(Number(event.target.value));
+                  setSelectedDay(null);
+                  setTearOrigin(null);
+                }}
+                className="bg-transparent font-bold text-accent focus-visible:outline-none"
+                aria-label="Jump to month"
+              >
+                {months.map((m, i) => (
+                  <option key={m} value={i}>
+                    {m} - {monthCounts.find((entry) => entry.month === m)?.count ?? 0}
+                  </option>
+                ))}
+              </select>
+            </label>
+            </div>
           </motion.div>
         </AnimatePresence>
 
@@ -258,30 +293,12 @@ export default function CalendarApp({
           onClick={() => goto(1)}
           disabled={monthIndex === months.length - 1}
           aria-label="Next month"
-          className="relative z-10 p-2 rounded-full border border-rule bg-paper/70 hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-colors"
+          className="relative z-10 p-2 rounded-full border border-rule bg-[color-mix(in_srgb,var(--paper)_78%,white)] hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-1 mb-2 shrink-0">
-        {months.map((m, i) => (
-          <button
-            key={m}
-            onClick={() => {
-              setMonthIndex(i);
-              setSelectedDay(null);
-              setTearOrigin(null);
-            }}
-            className={`w-2 h-2 rounded-full transition-all ${
-              i === monthIndex ? "bg-accent w-5" : "bg-rule hover:bg-ink-muted"
-            }`}
-            aria-label={`Jump to ${m}`}
-            title={m}
-          />
-        ))}
       </div>
 
       {monthTotal === 0 ? (
