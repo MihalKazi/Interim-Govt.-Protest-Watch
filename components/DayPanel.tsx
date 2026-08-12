@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import type { Protest } from "@/lib/data";
+import { followUpThread } from "@/lib/data";
 import { colorFor, shortLabel } from "@/lib/categories";
 import { DATE_CARD_PHOTOS } from "@/lib/protestPhotos";
 import RecordDetail from "./RecordDetail";
@@ -212,6 +213,7 @@ export default function DayPanel({
                   const c = colorFor(r.cat);
                   const venue =
                     r.venue === "Dhaka (venue not specified)" ? null : r.venue;
+                  const thread = followUpThread(r);
                   return (
                     <li key={r.n} className="my-1.5">
                       <button
@@ -252,6 +254,11 @@ export default function DayPanel({
                             {venue ?? <span className="italic">Venue not recorded</span>}
                           </span>
                         </span>
+                        {thread && (
+                          <span className="mt-2 font-sans text-[10px] uppercase tracking-[0.14em] text-amber">
+                            Follow-up / {thread}
+                          </span>
+                        )}
                       </button>
                     </li>
                   );

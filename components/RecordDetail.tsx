@@ -1,7 +1,7 @@
 "use client";
 
 import type { Protest } from "@/lib/data";
-import { recordSummary } from "@/lib/data";
+import { followUpThread, recordSummary } from "@/lib/data";
 import { shortLabel, colorFor } from "@/lib/categories";
 import { Reveal, RevealGroup } from "./RecordReveal";
 import ArticleEmbed from "./ArticleEmbed";
@@ -9,6 +9,7 @@ import ArticleEmbed from "./ArticleEmbed";
 export default function RecordDetail({ r }: { r: Protest }) {
   const venue = r.venue === "Dhaka (venue not specified)" ? null : r.venue;
   const summary = recordSummary(r);
+  const thread = followUpThread(r);
 
   return (
     <RevealGroup>
@@ -28,13 +29,19 @@ export default function RecordDetail({ r }: { r: Protest }) {
 
       <Reveal
         as="div"
-        className="flex items-center gap-2 mb-6 font-sans text-sm text-ink-muted"
+        className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-6 font-sans text-sm text-ink-muted"
       >
         <span
           className="inline-block w-2 h-2 rounded-full"
           style={{ backgroundColor: colorFor(r.cat) }}
         />
-        {shortLabel(r.cat)}
+        <span>{shortLabel(r.cat)}</span>
+        {venue && (
+          <>
+            <span className="text-ink-muted/45">/</span>
+            <span>{venue}</span>
+          </>
+        )}
       </Reveal>
 
       <Reveal
@@ -48,11 +55,22 @@ export default function RecordDetail({ r }: { r: Protest }) {
       </Reveal>
 
       {r.demand && (
-        <Reveal
-          as="p"
-          className="font-serif text-base sm:text-lg leading-relaxed mb-8"
-        >
-          {r.demand}
+        <Reveal as="div" className="mb-8">
+          <p className="mb-1 font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
+            Demand
+          </p>
+          <p className="font-serif text-base sm:text-lg leading-relaxed">
+            {r.demand}
+          </p>
+        </Reveal>
+      )}
+
+      {thread && (
+        <Reveal as="div" className="mb-8">
+          <p className="mb-1 font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
+            Follow-up thread
+          </p>
+          <p className="font-sans text-sm text-ink-muted">{thread}</p>
         </Reveal>
       )}
 
@@ -71,33 +89,19 @@ export default function RecordDetail({ r }: { r: Protest }) {
           </dd>
         </div>
 
-        <div>
-          <dt className="text-ink-muted uppercase text-xs tracking-wide mb-1">
-            Source
-          </dt>
-          <dd>
-            {r.verified && r.url ? (
-              <a
-                href={r.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                {r.source || r.domain}
-                {r.domain && (
-                  <span className="block text-xs text-ink-muted">
-                    {r.domain}
-                  </span>
-                )}
-              </a>
-            ) : (
+        {(!r.verified || !r.url) && (
+          <div>
+            <dt className="text-ink-muted uppercase text-xs tracking-wide mb-1">
+              Source
+            </dt>
+            <dd>
               <span className="text-amber font-medium">
-                {r.source ? `${r.source} · ` : ""}unverified — no article on
+                {r.source ? `${r.source} / ` : ""}unverified - no article on
                 file
               </span>
-            )}
-          </dd>
-        </div>
+            </dd>
+          </div>
+        )}
       </Reveal>
 
       {r.verified && r.url && (

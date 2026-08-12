@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { records, getRecord, getAdjacent } from "@/lib/data";
+import {
+  records,
+  getRecord,
+  getAdjacent,
+  recordSummary,
+  followUpThread,
+} from "@/lib/data";
 import { shortLabel, colorFor } from "@/lib/categories";
 import SiteHeader from "@/components/SiteHeader";
 import { Reveal, RevealGroup } from "@/components/RecordReveal";
@@ -26,7 +32,7 @@ export async function generateMetadata({
   const r = id !== null ? getRecord(id) : undefined;
   if (!r) return { title: "Record not found" };
 
-  const description = r.demand || `${r.event} — ${r.date}, ${r.venue}.`;
+  const description = r.demand || `${r.event} - ${r.date}, ${r.venue}.`;
 
   return {
     title: r.event,
@@ -55,8 +61,9 @@ export default async function RecordPage({
   if (!r) notFound();
 
   const { prev, next } = getAdjacent(r.n);
-  const venue =
-    r.venue === "Dhaka (venue not specified)" ? null : r.venue;
+  const venue = r.venue === "Dhaka (venue not specified)" ? null : r.venue;
+  const summary = recordSummary(r);
+  const thread = followUpThread(r);
 
   return (
     <div className="flex flex-col flex-1">
@@ -67,7 +74,7 @@ export default async function RecordPage({
           href="/"
           className="text-sm font-sans text-ink-muted hover:text-accent transition-colors"
         >
-          ← Archive
+          Back to archive
         </Link>
 
         <RevealGroup>
@@ -87,27 +94,54 @@ export default async function RecordPage({
 
           <Reveal
             as="div"
-            className="flex items-center gap-2 mb-8 font-sans text-sm text-ink-muted"
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-8 font-sans text-sm text-ink-muted"
           >
             <span
               className="inline-block w-2 h-2 rounded-full"
               style={{ backgroundColor: colorFor(r.cat) }}
             />
-            {shortLabel(r.cat)}
+            <span>{shortLabel(r.cat)}</span>
+            {venue && (
+              <>
+                <span className="text-ink-muted/45">/</span>
+                <span>{venue}</span>
+              </>
+            )}
+          </Reveal>
+
+          <Reveal
+            as="div"
+            className="mb-8 rounded-md border border-rule bg-[color-mix(in_srgb,var(--paper)_68%,white)] px-4 py-3 shadow-[0_1px_0_rgba(255,255,255,0.5)_inset]"
+          >
+            <p className="mb-1 font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
+              Summary
+            </p>
+            <p className="font-serif text-base leading-relaxed">{summary}</p>
           </Reveal>
 
           {r.demand && (
-            <Reveal
-              as="p"
-              className="font-serif text-lg sm:text-xl leading-relaxed mb-10 max-w-prose"
-            >
-              {r.demand}
+            <Reveal as="div" className="mb-10 max-w-prose">
+              <p className="mb-1 font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
+                Demand
+              </p>
+              <p className="font-serif text-lg sm:text-xl leading-relaxed">
+                {r.demand}
+              </p>
+            </Reveal>
+          )}
+
+          {thread && (
+            <Reveal as="div" className="mb-10 max-w-prose">
+              <p className="mb-1 font-sans text-[10px] uppercase tracking-[0.18em] text-amber">
+                Follow-up thread
+              </p>
+              <p className="font-sans text-sm text-ink-muted">{thread}</p>
             </Reveal>
           )}
 
           <Reveal
             as="dl"
-            className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-rule pt-6 font-sans text-sm"
+            className="grid grid-cols-1 gap-6 border-t border-rule pt-6 font-sans text-sm"
           >
             <div>
               <dt className="text-ink-muted uppercase text-xs tracking-wide mb-1">
@@ -122,33 +156,19 @@ export default async function RecordPage({
               </dd>
             </div>
 
-            <div>
-              <dt className="text-ink-muted uppercase text-xs tracking-wide mb-1">
-                Source
-              </dt>
-              <dd>
-                {r.verified && r.url ? (
-                  <a
-                    href={r.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent hover:underline"
-                  >
-                    {r.source || r.domain}
-                    {r.domain && (
-                      <span className="block text-xs text-ink-muted">
-                        {r.domain}
-                      </span>
-                    )}
-                  </a>
-                ) : (
+            {(!r.verified || !r.url) && (
+              <div>
+                <dt className="text-ink-muted uppercase text-xs tracking-wide mb-1">
+                  Source
+                </dt>
+                <dd>
                   <span className="text-amber font-medium">
-                    {r.source ? `${r.source} · ` : ""}unverified — no article
+                    {r.source ? `${r.source} / ` : ""}unverified - no article
                     on file
                   </span>
-                )}
-              </dd>
-            </div>
+                </dd>
+              </div>
+            )}
           </Reveal>
 
           {r.verified && r.url && (
@@ -160,8 +180,11 @@ export default async function RecordPage({
             className="flex items-center justify-between mt-16 pt-6 border-t border-rule font-sans text-sm"
           >
             {prev ? (
-              <Link href={`/record/${prev.n}`} className="hover:text-accent max-w-[45%]">
-                ← {prev.event}
+              <Link
+                href={`/record/${prev.n}`}
+                className="hover:text-accent max-w-[45%]"
+              >
+                Previous: {prev.event}
               </Link>
             ) : (
               <span />
@@ -171,7 +194,7 @@ export default async function RecordPage({
                 href={`/record/${next.n}`}
                 className="hover:text-accent max-w-[45%] text-right ml-auto"
               >
-                {next.event} →
+                Next: {next.event}
               </Link>
             ) : (
               <span />
